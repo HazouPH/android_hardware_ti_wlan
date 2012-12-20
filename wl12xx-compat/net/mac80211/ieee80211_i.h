@@ -1236,10 +1236,8 @@ void ieee80211_sched_scan_stopped_work(struct work_struct *work);
 /* off-channel helpers */
 void ieee80211_offchannel_enable_all_ps(struct ieee80211_local *local,
 					bool tell_ap);
-void ieee80211_offchannel_stop_vifs(struct ieee80211_local *local,
-				    bool offchannel_ps_enable);
-void ieee80211_offchannel_return(struct ieee80211_local *local,
-				 bool offchannel_ps_disable);
+void ieee80211_offchannel_stop_vifs(struct ieee80211_local *local);
+void ieee80211_offchannel_return(struct ieee80211_local *local);
 void ieee80211_hw_roc_setup(struct ieee80211_local *local);
 
 /* interface handling */
