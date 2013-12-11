@@ -2150,6 +2150,28 @@ int wpa_driver_wext_scan_custom(void *priv, const u8 *ssid, size_t ssid_len)
     return ret;
 }
 
+int wpa_driver_set_p2p_noa(void *priv, u8 count, int start, int duration)
+{
+	return -1;
+}
+
+int wpa_driver_get_p2p_noa(void *priv, u8 *buf, size_t len)
+{
+	return -1;
+}
+
+int wpa_driver_set_p2p_ps(void *priv, int legacy_ps, int opp_ps, int ctwindow)
+{
+	return -1;
+}
+
+int wpa_driver_set_ap_wps_p2p_ie(void *priv, const struct wpabuf *beacon,
+				 const struct wpabuf *proberesp,
+				 const struct wpabuf *assocresp)
+{
+	return 0;
+}
+
 const struct wpa_driver_ops wpa_driver_custom_ops = {
     .name = "mac80211_wext",
     .desc = "mac80211 station driver for TI wl12xx",
