@@ -23,7 +23,6 @@
 *.symtypes
 *.order
 *.elf
-*.bin
 *.gz
 compat_autoconf.h
 compat_regdom
