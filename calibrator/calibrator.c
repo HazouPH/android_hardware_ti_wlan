@@ -27,7 +27,7 @@
 #include "plt.h"
 #include "ini.h"
 
-#define fprintf(out,...) LOGE(__VA_ARGS__)
+#define fprintf(out,...) ALOGE(__VA_ARGS__)
 
 char calibrator_version[] = "0.73";
 #ifndef CONFIG_LIBNL20

@@ -32,7 +32,7 @@
 #include "ini.h"
 #include "nvs.h"
 
-#define fprintf(out,...) LOGE(__VA_ARGS__)
+#define fprintf(out,...) ALOGE(__VA_ARGS__)
 
 static char *ini_get_line(char *s, int size, FILE *stream, int *line,
 				  char **_pos)

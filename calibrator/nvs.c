@@ -28,7 +28,7 @@
 #include "plt.h"
 #include "ini.h"
 
-#define fprintf(out,...) LOGE(__VA_ARGS__)
+#define fprintf(out,...) ALOGE(__VA_ARGS__)
 
 /* 2048 - it should be enough for any chip, until... 22dec2010 */
 #define BUF_SIZE_4_NVS_FILE	2048

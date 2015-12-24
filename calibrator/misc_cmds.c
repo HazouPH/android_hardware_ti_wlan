@@ -14,7 +14,7 @@
 #include "ini.h"
 #include "nvs.h"
 
-#define fprintf(out,...) LOGE(__VA_ARGS__)
+#define fprintf(out,...) ALOGE(__VA_ARGS__)
 
 SECTION(get);
 SECTION(set);

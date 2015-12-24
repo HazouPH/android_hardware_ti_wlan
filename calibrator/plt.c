@@ -38,7 +38,7 @@
 
 #define ZERO_MAC	"00:00:00:00:00:00"
 
-#define fprintf(out,...) LOGE(__VA_ARGS__)
+#define fprintf(out,...) ALOGE(__VA_ARGS__)
 
 #ifndef SIOCETHTOOL
 #define SIOCETHTOOL     0x8946
