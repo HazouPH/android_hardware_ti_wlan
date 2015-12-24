@@ -27,10 +27,10 @@ LOCAL_MODULE_CLASS  := FIRMWARE
 include $(BUILD_PREBUILT)
 
 include $(CLEAR_VARS)
-LOCAL_MODULE        := wl1271-nvs.bin
+LOCAL_MODULE        := wl1271-nvs_128x.bin
 LOCAL_MODULE_TAGS   := optional
 LOCAL_MODULE_PATH   := $(local_target_dir_fw)
-LOCAL_SRC_FILES     := wl1271-nvs_128x.bin
+LOCAL_SRC_FILES     := $(LOCAL_MODULE)
 LOCAL_MODULE_CLASS  := FIRMWARE
 include $(BUILD_PREBUILT)
 
@@ -39,5 +39,5 @@ LOCAL_SRC_FILES     := TQS.ini
 LOCAL_MODULE_TAGS   := optional
 LOCAL_MODULE_CLASS  := ETC
 LOCAL_MODULE_PATH   := $(local_target_dir_tq)
-LOCAL_MODULE        := $(LOCAL_MODULE)
+LOCAL_MODULE        := $(LOCAL_SRC_FILES)
 include $(BUILD_PREBUILT)
