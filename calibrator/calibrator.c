@@ -3,7 +3,6 @@
  *
  * See README and COPYING for more details.
  */
-#define LOG_TAG "Calibrator"
 
 #include <errno.h>
 #include <stdio.h>
@@ -14,7 +13,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdbool.h>
-#include <cutils/log.h>
 
 #include <netlink/genl/genl.h>
 #include <netlink/genl/family.h>
@@ -26,8 +24,6 @@
 #include "calibrator.h"
 #include "plt.h"
 #include "ini.h"
-
-#define fprintf(out,...) ALOGE(__VA_ARGS__)
 
 char calibrator_version[] = "0.73";
 #ifndef CONFIG_LIBNL20
@@ -530,4 +526,14 @@ int main(int argc, char **argv)
 	nl80211_cleanup(&nlstate);
 
 	return err;
+}
+
+void str2mac(unsigned char *pmac, char *pch)
+{
+	int i;
+
+	for (i = 0; i < MAC_ADDR_LEN; i++) {
+		pmac[i] = (unsigned char)strtoul(pch, &pch, 16);
+		pch++;
+	}
 }

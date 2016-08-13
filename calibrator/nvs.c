@@ -3,7 +3,6 @@
  *
  * See README and COPYING for more details.
  */
-#define LOG_TAG "Calibrator"
 
 #include <sys/ioctl.h>
 #include <errno.h>
@@ -16,7 +15,6 @@
 #include <stdbool.h>
 #include <netinet/in.h>
 #include <time.h>
-#include <cutils/log.h>
 
 #include <netlink/netlink.h>
 #include <netlink/msg.h>
@@ -27,9 +25,6 @@
 #include "calibrator.h"
 #include "plt.h"
 #include "ini.h"
-
-#define fprintf(out,...) ALOGE(__VA_ARGS__)
-
 /* 2048 - it should be enough for any chip, until... 22dec2010 */
 #define BUF_SIZE_4_NVS_FILE	2048
 
@@ -705,8 +700,7 @@ int create_nvs_file(struct wl12xx_common *cmn)
 	new_nvs = open(cmn->nvs_name,
 		O_WRONLY | O_CREAT | O_TRUNC, S_IRUSR | S_IWUSR);
 	if (new_nvs < 0) {
-		fprintf(stderr, "%s> Unable to open new NVS file"
-					"(%s)\n", __func__, strerror(errno));
+		fprintf(stderr, "%s> Unable to open new NVS file\n", __func__);
 		return 1;
 	}
 
@@ -1027,7 +1021,7 @@ static void print_127x_fem_param2(int femnr, struct wl1271_ini_fem_params_2 *p)
 static void print_128x_fem_param2(int femnr, struct wl128x_ini_fem_params_2 *p)
 {
 	char fem[6];
-	snprintf(fem, sizeof(fem), "FEM%d_", femnr);
+	sprintf(fem, "FEM%d_", femnr);
 
 	printf("# SECTION 2.1.1: 2.4G parameters\n");
 
@@ -1055,7 +1049,7 @@ static void print_128x_fem_param2(int femnr, struct wl128x_ini_fem_params_2 *p)
 static void print_127x_fem_param5(int femnr, struct wl1271_ini_fem_params_5 *p)
 {
 	char fem[6];
-	snprintf(fem, sizeof(fem), "FEM%d_", femnr);
+	sprintf(fem, "FEM%d_", femnr);
 
 	printf("# SECTION 2.1.2: 5G parameters\n");
 
@@ -1080,7 +1074,7 @@ static void print_127x_fem_param5(int femnr, struct wl1271_ini_fem_params_5 *p)
 static void print_128x_fem_param5(int femnr, struct wl128x_ini_fem_params_5 *p)
 {
 	char fem[6];
-	snprintf(fem, sizeof(fem), "FEM%d_", femnr);
+	sprintf(fem, "FEM%d_", femnr);
 
 	printf("# SECTION 2.1.2: 5G parameters\n");
 

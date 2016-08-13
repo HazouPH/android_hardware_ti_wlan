@@ -4,14 +4,14 @@ based on wl12xx driver.
 
 Calibration is a process in which specific radio configuration parameters are
 generated and saved into the NVS file, later to be used by the wl12xx driver
-upon initialization. 
+upon initialization.
 These configuration parameters are specific to the chip on the specific design
 and therefore are sent back to the driver to store in non-volatile memory for
 later use. Upon initialization, the wl12xx driver will load an NVS file where
-it expects to read those parameters and send them to the chip. 
+it expects to read those parameters and send them to the chip.
 
 The NVS file contains 2 main parts - one stores the calibration parameters and
-the other one stores initialization information required for the wl12xx driver. 
+the other one stores initialization information required for the wl12xx driver.
 
 --- Build procedure
 
@@ -99,7 +99,7 @@ calibrator wlan0 plt tx_cont <delay> <rate> <size> <amount> <power> <seed> <pkt 
 calibrator wlan0 plt tx_stop
 calibrator wlan0 plt power_mode off
 
-Description: This test sends packets of data directly to air. It receives 
+Description: This test sends packets of data directly to air. It receives
 several parameters as described bellow, to enable diversity of
 operational modes.
 It is mostly used to see Energy and radio impact on Air.
@@ -162,7 +162,7 @@ calibrator wlan0 plt reset_rx_statcs
 	Update NVS file procedure
 
 This is procedure changes ini part of NVS file. It helps when there is need
-to change ini part of NVS which already calibrated. 
+to change ini part of NVS which already calibrated.
 
 calibrator set upd_nvs <ini file> [<old nvs file> [<new nvs file>]]
 
@@ -176,7 +176,7 @@ destination directory (usually /lib/firmware).
 
 calibrator get nvs_mac [<nvs filename>]
 
-	Set NVS to use auto FEM detection 
+	Set NVS to use auto FEM detection
 
 calibrator set autofem 1
 

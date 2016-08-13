@@ -2,7 +2,7 @@
 #define __PLT_H
 
 #ifdef ANDROID
-#define CURRENT_NVS_NAME	"/data/misc/firmware/ti-connectivity/wl1271-nvs.bin"
+#define CURRENT_NVS_NAME	"/system/etc/firmware/ti-connectivity/wl12xx-nvs.bin"
 #define INSMOD_PATH		"/system/bin/insmod"
 #define RMMOD_PATH		"/system/bin/rmmod"
 #else
@@ -261,15 +261,6 @@ struct wl1271_cmd_cal_p2g {
 	unsigned char  sub_band_mask;
 	unsigned char  padding2;
 } __attribute__((packed));
-
-struct wl1271_cmd_rssi_params {
-	struct wl1271_cmd_header header;
-
-	struct wl1271_cmd_test_header test;
-
-	__le16 rssi_val;
-	__le16 radio_status;
-}__attribute__((packed));
 
 #define MAC_ADDR_LEN  6
 

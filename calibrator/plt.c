@@ -3,7 +3,6 @@
  *
  * See README and COPYING for more details.
  */
-#define LOG_TAG "Calibrator"
 
 #include <sys/ioctl.h>
 #include <errno.h>
@@ -14,7 +13,6 @@
 #include <fcntl.h>
 #include <unistd.h>
 #include <stdbool.h>
-#include <cutils/log.h>
 
 #include <netlink/genl/genl.h>
 #include <netlink/genl/family.h>
@@ -23,12 +21,6 @@
 #include <netlink/attr.h>
 #include <linux/wireless.h>
 #include <linux/ethtool.h>
-
-#include <net/if.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/ioctl.h>
-
 #include "nl80211.h"
 
 #include "calibrator.h"
@@ -38,15 +30,12 @@
 
 #define ZERO_MAC	"00:00:00:00:00:00"
 
-#define fprintf(out,...) ALOGE(__VA_ARGS__)
-
 #ifndef SIOCETHTOOL
 #define SIOCETHTOOL     0x8946
 #endif
 
 SECTION(plt);
 
-#if DYNAMIC_MODULE_LOAD
 #define CMDBUF_SIZE 200
 static int insmod(char *filename)
 {
@@ -91,56 +80,6 @@ static int rmmod(char *name)
 		fprintf(stderr, "Failed to remove kernel module using command %s\n", cmd);
 out:
 	free(tmp);
-	return ret;
-}
-#endif
-
-static void str2mac(unsigned char *pmac, char *pch)
-{
-	int i;
-
-	for (i = 0; i < MAC_ADDR_LEN; i++) {
-		pmac[i] = (unsigned char)strtoul(pch, &pch, 16);
-		pch++;
-	}
-}
-
-static int isiffup(const char *vname)
-{
-	int ret=0;
-	int skfd = socket (AF_INET, SOCK_DGRAM, 0);
-
-	if (skfd) {
-		struct ifreq ifr;
-		strncpy (ifr.ifr_name, vname, sizeof(ifr.ifr_name)-1);
-		ifr.ifr_name[sizeof(ifr.ifr_name)-1]='\0';
-		if (!ioctl (skfd, SIOCGIFFLAGS, &ifr)) {
-		   const short int flags = ifr.ifr_flags;
-		   if (flags & IFF_UP) ret=1;
-		}
-	close (skfd);
-	}
-	return ret;
-}
-
-static int setiffdown(const char *vname)
-{
-	int ret=0;
-	int skfd = socket (AF_INET, SOCK_DGRAM, 0);
-
-	if (skfd) {
-		struct ifreq ifreq;
-		strncpy(ifreq.ifr_name, vname, sizeof(ifreq.ifr_name)-1);
-		ifreq.ifr_name[sizeof(ifreq.ifr_name)-1]='\0';
-		if (!ioctl (skfd, SIOCGIFFLAGS, &ifreq)) {
-			short int flags = ifreq.ifr_flags;
-			flags &= ~IFF_UP;
-			ifreq.ifr_flags = flags;
-			if (ioctl (skfd, SIOCSIFFLAGS, &ifreq) == -1)
-				ret=1;
-		} else ret=1;
-	close (skfd);
-	}
 	return ret;
 }
 
@@ -304,7 +243,6 @@ static int calib_valid_handler(struct nl_msg *msg, void *arg)
 		printf("++++++++++++++++++++++++\n");
 #endif
 	printf("Writing calibration data to %s\n", (char*) arg);
-
 	if (prepare_nvs_file(prms, arg)) {
 		fprintf(stderr, "Fail to prepare calibrated NVS file\n");
 		return 2;
@@ -489,7 +427,7 @@ static int plt_tx_bip(struct nl80211_state *state, struct nl_cb *cb,
 	struct nlattr *key;
 	struct wl1271_cmd_cal_p2g prms;
 	int i;
-	static char nvs_path[PATH_MAX];
+	char nvs_path[PATH_MAX];
 
 	if (argc < 8) {
 		fprintf(stderr, "%s> Missing arguments\n", __func__);
@@ -584,99 +522,6 @@ COMMAND(plt, tx_tone, "<tone type 1|2> <power 0 - 10000>",
 	NL80211_CMD_TESTMODE, 0, CIB_NETDEV, plt_tx_tone,
 	"Do command tx_tone to transmit a tone\n");
 
-static int convert_rate_to_num(char *string)
-{
-	int     len    = 0;
-	int     i      = 0;
-	int     j      = 0;
-	int     result = 0;
-	int     cVal   = 0;
-
-	if(string == NULL)
-	{
-		// A default rate willbe set by FW
-		return 0;
-	}
-
-	len = strlen(string);
-
-	for(i = len - 1; i >= 0; i--, j++)
-	{
-		if((string[i] == 'x') || (string[i] == 'X'))
-		{
-			break;
-		}
-
-		cVal = ((int)(string[i]) - (int)('0'));
-
-		result += (cVal << (4 * j));
-	}
-	return result;
-}
-
-static int display_rssi(struct nl_msg *msg, void *arg)
-{
-	struct nlattr *tb[NL80211_ATTR_MAX + 1];
-	struct genlmsghdr *gnlh = nlmsg_data(nlmsg_hdr(msg));
-	struct nlattr *td[WL1271_TM_ATTR_MAX + 1];
-	struct wl1271_cmd_rssi_params *prms;
-
-	nla_parse(tb, NL80211_ATTR_MAX, genlmsg_attrdata(gnlh, 0),
-		genlmsg_attrlen(gnlh, 0), NULL);
-
-	if (!tb[NL80211_ATTR_TESTDATA]) {
-		fprintf(stderr, "no data!\n");
-		return NL_SKIP;
-	}
-
-	nla_parse(td, WL1271_TM_ATTR_MAX, nla_data(tb[NL80211_ATTR_TESTDATA]),
-		nla_len(tb[NL80211_ATTR_TESTDATA]), NULL);
-
-	prms = (struct wl1271_cmd_rssi_params *)nla_data(td[WL1271_TM_ATTR_DATA]);
-
-	printf("\n\tRSSI val \t- %d\n",(signed short)prms->rssi_val/8);
-
-	return NL_SKIP;
-}
-
-
-
-static int plt_cw_rssi(struct nl80211_state *state, struct nl_cb *cb,
-			struct nl_msg *msg, int argc, char **argv)
-{
-	struct nlattr *key;
-	struct wl1271_cmd_rssi_params prms;
-
-	memset((void *)&prms, 0, sizeof(struct wl1271_cmd_rssi_params));
-
-	prms.test.id = TEST_CMD_FREE_RUN_RSSI;
-
-	key = nla_nest_start(msg, NL80211_ATTR_TESTDATA);
-	if (!key) {
-		fprintf(stderr, "fail to nla_nest_start()\n");
-		return 1;
-	}
-
-	NLA_PUT_U32(msg, WL1271_TM_ATTR_CMD_ID, WL1271_TM_CMD_TEST);
-	NLA_PUT(msg, WL1271_TM_ATTR_DATA, sizeof(prms), &prms);
-	NLA_PUT_U8(msg, WL1271_TM_ATTR_ANSWER, 1);
-
-	nla_nest_end(msg, key);
-
-	nl_cb_set(cb, NL_CB_VALID, NL_CB_CUSTOM, display_rssi , NULL);
-
-	return 0;
-
-nla_put_failure:
-	fprintf(stderr, "%s> building message failed\n", __func__);
-	return 2;
-}
-
-COMMAND(plt, cw_rssi,NULL,
-	NL80211_CMD_TESTMODE, 0, CIB_NETDEV, plt_cw_rssi,
-	"get free running rssi\n");
-
-
 static int plt_tx_cont(struct nl80211_state *state, struct nl_cb *cb,
 			struct nl_msg *msg, int argc, char **argv)
 {
@@ -702,7 +547,7 @@ static int plt_tx_cont(struct nl80211_state *state, struct nl_cb *cb,
 
 	prms.test.id = TEST_CMD_FCC;
 	prms.delay = atoi(argv[0]);
-	prms.rate = convert_rate_to_num(argv[1]);
+	prms.rate = strtol(argv[1], NULL, 0);
 	prms.size = (unsigned short)atoi(argv[2]);
 	prms.amount = (unsigned short)atoi(argv[3]);
 	prms.power = atoi(argv[4]);
@@ -1019,7 +864,7 @@ static int plt_do_power_on(struct nl80211_state *state, char *devname)
 
 	err = handle_cmd(state, II_NETDEV, ARRAY_SIZE(pm_on), pm_on);
 	if (err < 0)
-		fprintf(stderr, "Fail to set PLT power mode on. err = %d\n", err);
+		fprintf(stderr, "Fail to set PLT power mode on\n");
 
 	return err;
 }
@@ -1031,7 +876,7 @@ static int plt_do_power_off(struct nl80211_state *state, char *devname)
 
 	err = handle_cmd(state, II_NETDEV, ARRAY_SIZE(prms), prms);
 	if (err < 0)
-		fprintf(stderr, "Failed to set PLT power mode off. err = %d\n", err);
+		fprintf(stderr, "Failed to set PLT power mode on\n");
 
 	return err;
 }
@@ -1054,56 +899,6 @@ static int plt_do_calibrate(struct nl80211_state *state, struct nl_cb *cb,
 			fprintf(stderr, "Fail to tune channel\n");
 			ret = err;
 			goto fail_out;
-		}
-	}
-
-	/* Set nvs version 2.1 */
-	if (arch == UNKNOWN_ARCH) {
-		fprintf(stderr, "Unknown arch. Not setting nvs ver 2.1");
-	}
-	else {
-		size_t ret;
-		char archstr[5] = "";
-		char *prms[4] = {
-			"wlan0", "plt", "nvs_ver", archstr
-		};
-
-		ret = snprintf(archstr, sizeof(archstr), "%x", arch);
-		if (ret > sizeof(archstr)) {
-			fprintf(stderr, "Bad arch\n");
-			goto fail_out;
-		}
-
-		printf("Using nvs version 2.1\n");
-		err = handle_cmd(state, II_NETDEV, 4, prms);
-		if (err < 0) {
-			fprintf(stderr, "Fail to set nvs ver 2.1\n");
-			ret = err;
-		}
-	}
-
-	/* Set nvs version 2.1 */
-	if (arch == UNKNOWN_ARCH) {
-		fprintf(stderr, "Unknown arch. Not setting nvs ver 2.1");
-	}
-	else {
-		size_t ret;
-		char archstr[5] = "";
-		char *prms[4] = {
-			"wlan0", "plt", "nvs_ver", archstr
-		};
-
-		ret = snprintf(archstr, sizeof(archstr), "%x", arch);
-		if (ret > sizeof(archstr)) {
-			fprintf(stderr, "Bad arch\n");
-			goto fail_out;
-		}
-
-		printf("Using nvs version 2.1\n");
-		err = handle_cmd(state, II_NETDEV, 4, prms);
-		if (err < 0) {
-			fprintf(stderr, "Fail to set nvs ver 2.1\n");
-			ret = err;
 		}
 	}
 
@@ -1177,7 +972,7 @@ static int plt_calibrate(struct nl80211_state *state, struct nl_cb *cb,
 		goto out;
 
 	err = plt_do_calibrate(state, cb, msg, single_dual, NEW_NVS_NAME,
-	                        "wlan0", UNKNOWN_ARCH);
+			       "wlan0", UNKNOWN_ARCH);
 
 	ret = plt_do_power_off(state, "wlan0");
 	if (ret < 0)
@@ -1222,8 +1017,8 @@ static int plt_autocalibrate(struct nl80211_state *state, struct nl_cb *cb,
 	cmn.nvs_name = get_opt_nvsoutfile(argc--, argv++);
 
 	if (argc) {
-	macaddr = *argv++;
-	argc--;
+		macaddr = *argv++;
+		argc--;
 	} else {
 		macaddr = NULL;
 	}
@@ -1280,21 +1075,10 @@ static int plt_autocalibrate(struct nl80211_state *state, struct nl_cb *cb,
 		return 1;
 	}
 
-#if DYNAMIC_MODULE_LOAD
 	/* Load module */
 	res = insmod(modpath);
 	if (res) {
 		goto out_removenvs;
-	}
-#endif
-	res = isiffup(devname);
-	if (res) {
-		fprintf(stderr, "%s interface was already up "
-			", trying to bring it down", devname);
-		if (setiffdown(devname)) {
-			fprintf(stderr, "failed to bring down %s", devname);
-			goto out_removenvs;
-		}
 	}
 
 	res = plt_do_power_on(state, devname);
@@ -1322,9 +1106,8 @@ static int plt_autocalibrate(struct nl80211_state *state, struct nl_cb *cb,
 
 	/* we can ignore the return value, because we rmmod anyway */
 	plt_do_power_off(state, devname);
-#if DYNAMIC_MODULE_LOAD
 	rmmod(modpath);
-#endif
+
 	printf("Calibration done. ");
 	if (cmn.fem0_bands) {
 		printf("FEM0 has %d bands. ", cmn.fem0_bands);
@@ -1343,14 +1126,12 @@ out_power_off:
 	/* we can ignore the return value, because we rmmod anyway */
 	plt_do_power_off(state, devname);
 out_rmmod:
-#if DYNAMIC_MODULE_LOAD
 	rmmod(modpath);
-#endif
 
 out_removenvs:
 	fprintf(stderr, "Calibration not complete. Removing half-baked nvs\n");
 	unlink(cmn.nvs_name);
-	return res;
+	return 0;
 
 }
 COMMAND(plt, autocalibrate, "<dev> <module path> <ini file1> <nvs file> "
