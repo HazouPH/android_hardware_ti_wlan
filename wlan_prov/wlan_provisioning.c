@@ -567,7 +567,7 @@ static int wifi_calibration(void)
 
 	/* start calibration & nvs update */
 	snprintf(system_cmd, sizeof(system_cmd), "/system/bin/calibrator plt autocalibrate wlan0"
-							" /lib/modules/updates/wl12xx_sdio.ko %s %s %s",
+							" /system/lib/modules/wl12xx_sdio.ko %s %s %s",
 							TQS_FILE,
 							NVS_file_name,
 							(unsigned char *)"08:00:28:DE:AD:00");
