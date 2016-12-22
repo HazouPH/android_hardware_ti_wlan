@@ -1298,7 +1298,7 @@ static void wl1271_nvs_complete(const struct firmware *fw, void *context)
 
 	if (fw && fw->size) {
 		//BEGIN a19110 IKJBREL2-2970
-		wl1271_info("nvs success");
+		wl1271_error("nvs success");
 		no_more_nvs = 1;
 		//END IKJBREL2-2970
 		wl->nvs = kmemdup(fw->data, fw->size, GFP_KERNEL);
@@ -1312,7 +1312,7 @@ static void wl1271_nvs_complete(const struct firmware *fw, void *context)
 		release_firmware(fw);
 	} else {
 		//BEGIN a19110 IKJBREL2-2970
-		wl1271_debug("could not open nvs file");
+		wl1271_error("could not open nvs file");
 		if(!no_more_nvs) {
 			no_more_nvs = 1;
 			wl1271_fetch_nvs_nowait(wl,WL12XX_NVS_NAME);
@@ -1321,7 +1321,7 @@ static void wl1271_nvs_complete(const struct firmware *fw, void *context)
 	}
 
 	if(no_more_nvs) {
-		wl1271_debug("register hw");
+		wl1271_error("register hw");
 		no_more_nvs = 0;
 		ret = wl1271_register_hw(wl);
 		if (ret)
@@ -1341,7 +1341,7 @@ static int wl1271_fetch_nvs_nowait(struct wl1271 *wl, char * nvsFile)
 {
 	int ret;
 
-	wl1271_debug("wl1271_fetch_nvs_nowait called %s",nvsFile);
+	wl1271_error("wl1271_fetch_nvs_nowait called %s",nvsFile);
 	ret = request_firmware_nowait(THIS_MODULE, FW_ACTION_HOTPLUG,
 					  //BEGIN a19110 IKJBREL2-2970
 				      nvsFile, wl->dev, GFP_KERNEL,
