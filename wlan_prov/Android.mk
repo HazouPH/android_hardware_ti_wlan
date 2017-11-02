@@ -1,4 +1,4 @@
-ifeq ($(strip $(BOARD_WLAN_DEVICE)),wl12xx-compat)
+ifeq ($(strip $(BOARD_WLAN_DEVICE)),wl12xx_compat)
 
 LOCAL_PATH:= $(call my-dir)
 include $(CLEAR_VARS)
