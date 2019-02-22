@@ -72,7 +72,8 @@ else
 INCLUDES += external/libnl-headers
 LOCAL_STATIC_LIBRARIES := libnl_2
 endif
-LOCAL_CFLAGS := $(L_CFLAGS)
+LOCAL_CFLAGS := $(L_CFLAGS) -Wno-unused-parameter -Wno-unused-variable \
+	-Wno-macro-redefined -Wno-unused-function
 LOCAL_SRC_FILES := $(L_SRC)
 LOCAL_C_INCLUDES := $(INCLUDES)
 include $(BUILD_STATIC_LIBRARY)
