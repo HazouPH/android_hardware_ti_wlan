@@ -24,7 +24,8 @@ LOCAL_SRC_FILES := \
         plt.c \
         ini.c
 
-LOCAL_CFLAGS := -DCONFIG_LIBNL20
+LOCAL_CFLAGS := -DCONFIG_LIBNL20 -Wno-unused-parameter -Wno-address-of-packed-member \
+	-Wno-user-defined-warnings
 LOCAL_C_INCLUDES := \
     $(LOCAL_PATH)
 
