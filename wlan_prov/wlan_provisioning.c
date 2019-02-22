@@ -560,10 +560,8 @@ static int nvs_replace_mac(unsigned char *MacAddr)
 
 static int wifi_calibration(void)
 {
-	FILE *CuCmdFile = NULL;
 	char system_cmd[500];
 	int err = 0;
-	int module_is_loaded = 0;
 
 	/* start calibration & nvs update */
 	snprintf(system_cmd, sizeof(system_cmd), "/system/bin/calibrator plt autocalibrate wlan0"

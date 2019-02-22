@@ -11,7 +11,7 @@ endif
 LOCAL_SRC_FILES:= \
 	wlan_provisioning.c
 
-LOCAL_CFLAGS:=
+LOCAL_CFLAGS := -Wno-unused-parameter
 
 ifeq ($(BUILD_WITH_CHAABI_SUPPORT),true)
 LOCAL_CFLAGS += -DBUILD_WITH_CHAABI_SUPPORT
@@ -24,7 +24,7 @@ LOCAL_CFLAGS += -DSINGLE_BAND
 endif
 
 LOCAL_SHARED_LIBRARIES := \
-	libc libcutils libhardware_legacy libcrypto
+	libc libcutils libhardware_legacy libcrypto liblog
 
 LOCAL_MODULE:= wlan_prov.ti
 LOCAL_MODULE_STEM := wlan_prov
